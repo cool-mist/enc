@@ -11,8 +11,9 @@ struct StringDetail {
 }
 
 struct CharacterDetail {
-    byte_index: usize,
     character: Option<char>,
+    unicode: Option<u32>,
+    byte_index: usize,
     byte: u8,
 }
 
@@ -41,6 +42,7 @@ impl StringDetail{
             .push(CharacterDetail {
                 byte_index: self.len,
                 character,
+                unicode: character.map(|c| c as u32),
                 byte,
             });
         self.len += 1;
@@ -69,10 +71,22 @@ impl StringDetail{
     fn to_table_row(char_detail: &CharacterDetail) -> Vec<String> {
         let character: String = match char_detail.character {
             Some(x) => String::from(format!("{}", x)),
-            None => String::from("<..>"),
+            None => String::from("<->"),
+        };
+
+        let unicode: String = match char_detail.unicode {
+            Some(x) => String::from(format!("{}", x)),
+            None => String::from("<->"),
+        };
+
+        let unicode_hex: String = match char_detail.unicode {
+            Some(x) => String::from(format!("{:x}", x)),
+            None => String::from("<->"),
         };
 
         vec![
+            unicode,
+            unicode_hex,
             character,
             format!("{}", char_detail.byte_index),
             format!("{:02x}", char_detail.byte),
@@ -82,6 +96,8 @@ impl StringDetail{
 
     fn table_header() -> Vec<String> {
         vec![
+            String::from("U+dec"),
+            String::from("U+hex"),
             String::from("character"),
             String::from("byte"),
             String::from("hex"),
