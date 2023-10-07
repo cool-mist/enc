@@ -74,7 +74,7 @@ impl StringDetail{
     }
 
     fn to_table_row(char_detail: &CharacterDetail) -> Vec<String> {
-        let empty = "<->";
+        let empty = "";
         let mut character = String::from(empty);
         let mut unicode = String::from(empty);
         let mut unicode_hex = String::from(empty);
