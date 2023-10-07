@@ -1,7 +1,13 @@
 [package]
-name = "enc"
+name = "enc-check"
 version = "0.1.0"
 edition = "2021"
+authors = ["cool-mist <n.suryap@gmail.com>"]
+license = "GPL v3"
+description = "A tool to inspect character encodings"
+homepage = "https://github.com/cool-mist/enc"
+repository = "https://github.com/cool-mist/enc"
+keywords = ["encodings", "utf-8", "utf8", "unicode"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

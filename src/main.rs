@@ -1,5 +1,4 @@
 use clap::Parser;
-
 use tabled::{
     builder::Builder,
     settings::{Modify, object::Rows, Alignment, Style}
