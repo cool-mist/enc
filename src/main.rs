@@ -1,9 +1,17 @@
-use std::env;
+use clap::Parser;
 
 use tabled::{
     builder::Builder,
     settings::{Modify, object::Rows, Alignment, Style}
 };
+
+#[derive(Parser)]
+struct CliArgs {
+    name: String,
+
+    #[arg(short = 'j', long = "json", action)]
+    json: bool,
+}
 
 struct StringDetail {
     characters: Vec<CharacterDetail>,
@@ -12,7 +20,6 @@ struct StringDetail {
 
 struct CharacterDetail {
     character: Option<char>,
-    unicode: Option<u32>,
     byte_index: usize,
     byte: u8,
 }
@@ -37,12 +44,10 @@ impl StringDetail{
         Self { characters: Vec::new(), len: 0 }
     }
 
-    fn push(&mut self, character:Option<char>, byte:u8){
-        self.characters
+    fn push(&mut self, character:Option<char>, byte:u8){ self.characters
             .push(CharacterDetail {
                 byte_index: self.len,
                 character,
-                unicode: character.map(|c| c as u32),
                 byte,
             });
         self.len += 1;
@@ -69,29 +74,32 @@ impl StringDetail{
     }
 
     fn to_table_row(char_detail: &CharacterDetail) -> Vec<String> {
-        let character: String = match char_detail.character {
-            Some(x) => String::from(format!("{}", x)),
-            None => String::from("<->"),
+        let empty = "<->";
+        let mut character = String::from(empty);
+        let mut unicode = String::from(empty);
+        let mut unicode_hex = String::from(empty);
+        match char_detail.character {
+            Some(x) => {
+                character = String::from(format!("{}", x));
+                unicode = String::from(format!("{}", x as u32));
+                unicode_hex = String::from(format!("{:x}", x as u32));
+            }
+            None => {
+            }
         };
-
-        let unicode: String = match char_detail.unicode {
-            Some(x) => String::from(format!("{}", x)),
-            None => String::from("<->"),
-        };
-
-        let unicode_hex: String = match char_detail.unicode {
-            Some(x) => String::from(format!("{:x}", x)),
-            None => String::from("<->"),
-        };
+        let byte = format!("{}", char_detail.byte_index);
+        let hex = format!("{:02x}", char_detail.byte);
+        let dec = format!("{}", char_detail.byte);
+        let bin = format!("{:08b}", char_detail.byte);
 
         vec![
             unicode,
             unicode_hex,
             character,
-            format!("{}", char_detail.byte_index),
-            format!("{:02x}", char_detail.byte),
-            format!("{}", char_detail.byte),
-            format!("{:08b}", char_detail.byte)]
+            byte,
+            hex,
+            dec,
+            bin]
     }
 
     fn table_header() -> Vec<String> {
@@ -109,12 +117,10 @@ impl StringDetail{
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        print!("Usage: enc <string>");
-        return;
+    let cli = CliArgs::parse();
+    let utf8 = StringDetail::parse_utf8(&cli.name);
+    match cli.json {
+        false => utf8.print_table(),
+        _ => panic!("Not yet implemented!!"),
     }
-
-    let utf8 = StringDetail::parse_utf8(&args[1]);
-    utf8.print_table();
 }
