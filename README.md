@@ -1,12 +1,37 @@
 # enc-check #
 
+## Installation ##
+
+`cargo install enc-check`
+
 ## Usage ##
 
 Inspect character encodings.
 
-`enc-check asdᚢ𐌰`
+```
+enc-check --help
+
+Usage: enc-check [OPTIONS] <-8|-6> <NAME>
+
+Arguments:
+  <NAME>
+          The string to inspect
+
+Options:
+  -8
+          Inspect utf-8
+  -6
+          Inspect utf-16
+  -j, --json
+          Output as json. Useful as a command line tool
+  -h, --help
+          Print help
+```
+
 
 ```
+enc-check -8 asdᚢ𐌰
+
 ┌───────┬───────┬───────────┬──────┬─────┬─────┬──────────┐
 │ U+dec │ U+hex │ character │ byte │ hex │ dec │ bin      │
 ├───────┼───────┼───────────┼──────┼─────┼─────┼──────────┤
@@ -23,6 +48,3 @@ Inspect character encodings.
 └───────┴───────┴───────────┴──────┴─────┴─────┴──────────┘
 ```
 
-## Installation ##
-
-`cargo install enc-check`
