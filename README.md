@@ -1,4 +1,4 @@
-# enc #
+# enc-check #
 
 ## Usage ##
 
@@ -26,4 +26,3 @@ Inspect character encodings.
 ## Installation ##
 
 `cargo install enc-check`
-
