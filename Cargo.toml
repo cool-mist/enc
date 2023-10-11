@@ -11,4 +11,6 @@ keywords = ["encodings", "utf-8", "utf8", "unicode"]
 
 [dependencies]
 clap = { version = "4.4.6", features = ["derive"] }
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.107"
 tabled = "0.14.0"

@@ -1,4 +1,5 @@
 use clap::{Parser, Args};
+use serde::Serialize;
 use tabled::{
     builder::Builder,
     settings::{Modify, object::Rows, Alignment, Style}
@@ -6,7 +7,7 @@ use tabled::{
 
 struct StringDetail {
     characters: Vec<CharacterDetail>,
-    len: usize,
+    length: usize,
 }
 
 struct CharacterDetail {
@@ -46,17 +47,17 @@ impl StringDetail{
     }
 
     fn default() -> Self {
-        Self { characters: Vec::new(), len: 0 }
+        Self { characters: Vec::new(), length: 0 }
     }
 
     fn push(&mut self, character:Option<char>, byte:u8){ 
         self.characters
             .push(CharacterDetail {
-                byte_index: self.len,
+                byte_index: self.length,
                 character,
                 byte,
             });
-        self.len += 1;
+        self.length += 1;
     }
 
     fn push_utf16(&mut self, character:Option<char>, byte: u16){
@@ -64,28 +65,27 @@ impl StringDetail{
         self.push(character, bytes[0]);
         self.push(None, bytes[1]);
     }
+}
 
-    fn print_table(&self) {
-        let mut table_builder = Builder::default();
-        table_builder.set_header(StringDetail::table_header());
-        for i in self.table_rows() {
-            table_builder.push_record(i);
-        }
+#[derive(Serialize)]
+struct StringTable {
+    characters: Vec<StringTableRow>,
+    length: usize,
+}
 
-        let table = table_builder.build()
-            .with(Style::sharp())
-            .with(Modify::new(Rows::new(1..)).with(Alignment::left()))
-            .to_string();
-        print!("{}", table);
-    }
+#[derive(Serialize)]
+struct StringTableRow {
+    unicode: String,
+    unicode_hex: String,
+    character: String,
+    byte: String,
+    hex: String,
+    dec: String,
+    bin: String,
+}
 
-    fn table_rows(&self) -> Vec<Vec<String>> {
-        self.characters.iter()
-                .map(StringDetail::to_table_row)
-                .collect::<Vec<Vec<_>>>()
-    }
-
-    fn to_table_row(char_detail: &CharacterDetail) -> Vec<String> {
+impl StringTableRow {
+    fn from(char_detail: &CharacterDetail) -> Self {
         let empty = "";
         let mut character = String::from(empty);
         let mut unicode = String::from(empty);
@@ -104,17 +104,18 @@ impl StringDetail{
         let dec = format!("{}", char_detail.byte);
         let bin = format!("{:08b}", char_detail.byte);
 
-        vec![
+        StringTableRow {
             unicode,
             unicode_hex,
             character,
             byte,
             hex,
             dec,
-            bin]
+            bin
+        }
     }
 
-    fn table_header() -> Vec<String> {
+    fn header() -> Vec<String> {
         vec![
             String::from("U+dec"),
             String::from("U+hex"),
@@ -126,6 +127,49 @@ impl StringDetail{
         ]
     }
 
+    fn to_table_row(self) -> Vec<String> {
+        vec![
+            self.unicode,
+            self.unicode_hex,
+            self.character,
+            self.byte,
+            self.hex,
+            self.dec,
+            self.bin,
+        ]
+    }
+}
+
+impl StringTable {
+    fn from (string_details: &StringDetail) -> Self {
+        let characters = string_details.characters.iter()
+                .map(StringTableRow::from)
+                .collect::<Vec<StringTableRow>>();
+
+        StringTable {
+            characters,
+            length: string_details.length,
+        }
+    }
+
+    fn as_table(self) -> String {
+        let mut table_builder = Builder::default();
+        table_builder.set_header(StringTableRow::header());
+        for i in self.characters {
+            table_builder.push_record(i.to_table_row());
+        }
+
+        let table = table_builder.build()
+            .with(Style::sharp())
+            .with(Modify::new(Rows::new(1..)).with(Alignment::left()))
+            .to_string();
+
+        format!("{}", table)
+    }
+
+    fn as_json(self) -> String {
+        format!("{}", serde_json::to_string(&self).unwrap())
+    }
 }
 
 #[derive(Parser)]
@@ -162,8 +206,10 @@ fn main() {
         false => StringDetail::parse_utf16(&cli.name)
     };
 
+    let char_table = StringTable::from(&details);
+
     match cli.json {
-        false => details.print_table(),
-        true => panic!("Output as json is not yet implemented")
+        false => println!("{}", char_table.as_table()),
+        true => println!("{}", char_table.as_json()),
     }
 }
