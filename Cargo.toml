@@ -1,10 +1,10 @@
 [package]
 name = "enc-check"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["cool-mist <n.suryap@gmail.com>"]
 license = "GPL-3.0-only"
-description = "A tool to inspect character encodings"
+description = "A tool to inspect utf-8 and utf-16 character encodings"
 homepage = "https://github.com/cool-mist/enc"
 repository = "https://github.com/cool-mist/enc"
 keywords = ["encodings", "utf-8", "utf8", "unicode"]
