@@ -48,3 +48,6 @@ enc-check -8 asdᚢ𐌰
 └───────┴───────┴───────────┴──────┴─────┴─────┴──────────┘
 ```
 
+## Learn ##
+
+- Summary of how encodings work is at `learn/slides.md`. Run it using [maaslalani/slides](https://github.com/maaslalani/slides).
