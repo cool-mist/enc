@@ -1,8 +1,8 @@
-use clap::{Parser, Args};
+use clap::{Args, Parser};
 use serde::Serialize;
 use tabled::{
     builder::Builder,
-    settings::{Modify, object::Rows, Alignment, Style}
+    settings::{object::Rows, Alignment, Modify, Style},
 };
 
 struct StringDetail {
@@ -16,16 +16,16 @@ struct CharacterDetail {
     byte: u8,
 }
 
-impl StringDetail{
-    fn parse_utf8(query: &String) -> Self {
-        let mut details:StringDetail = StringDetail::default();
+impl StringDetail {
+    fn parse_utf8(query: &str) -> Self {
+        let mut details: StringDetail = StringDetail::default();
         for i in query.chars() {
             let mut bytes = [0; 4];
-            i.encode_utf8(&mut bytes);
+            let encoded = i.encode_utf8(&mut bytes);
 
-            details.push(Some(i), bytes[0]);
-            for b in 1..i.len_utf8() {
-                details.push(None, bytes[b]);
+            let mut citer = vec![i].into_iter();
+            for b in encoded.bytes() {
+                details.push(citer.next(), b);
             }
         }
 
@@ -33,13 +33,14 @@ impl StringDetail{
     }
 
     fn parse_utf16(query: &String) -> Self {
-        let mut details:StringDetail = StringDetail::default();
+        let mut details: StringDetail = StringDetail::default();
         for i in query.chars() {
             let mut bytes = [0; 2];
-            i.encode_utf16(&mut bytes);
-            details.push_utf16(Some(i), bytes[0]);
-            if bytes[1] != 0x00000000 {
-                details.push_utf16(None, bytes[1]);
+            let encoded = i.encode_utf16(&mut bytes);
+
+            let mut citer = vec![i].into_iter();
+            for b in encoded {
+                details.push_utf16(citer.next(), *b);
             }
         }
 
@@ -47,20 +48,22 @@ impl StringDetail{
     }
 
     fn default() -> Self {
-        Self { characters: Vec::new(), length: 0 }
+        Self {
+            characters: Vec::new(),
+            length: 0,
+        }
     }
 
-    fn push(&mut self, character:Option<char>, byte:u8){ 
-        self.characters
-            .push(CharacterDetail {
-                byte_index: self.length,
-                character,
-                byte,
-            });
+    fn push(&mut self, character: Option<char>, byte: u8) {
+        self.characters.push(CharacterDetail {
+            byte_index: self.length,
+            character,
+            byte,
+        });
         self.length += 1;
     }
 
-    fn push_utf16(&mut self, character:Option<char>, byte: u16){
+    fn push_utf16(&mut self, character: Option<char>, byte: u16) {
         let bytes = byte.to_be_bytes();
         self.push(character, bytes[0]);
         self.push(None, bytes[1]);
@@ -96,8 +99,7 @@ impl StringTableRow {
                 unicode = String::from(format!("{}", x as u32));
                 unicode_hex = String::from(format!("{:x}", x as u32));
             }
-            None => {
-            }
+            None => {}
         };
         let byte = format!("{}", char_detail.byte_index);
         let hex = format!("{:02x}", char_detail.byte);
@@ -111,7 +113,7 @@ impl StringTableRow {
             byte,
             hex,
             dec,
-            bin
+            bin,
         }
     }
 
@@ -141,10 +143,12 @@ impl StringTableRow {
 }
 
 impl StringTable {
-    fn from (string_details: &StringDetail) -> Self {
-        let characters = string_details.characters.iter()
-                .map(StringTableRow::from)
-                .collect::<Vec<StringTableRow>>();
+    fn from(string_details: &StringDetail) -> Self {
+        let characters = string_details
+            .characters
+            .iter()
+            .map(StringTableRow::from)
+            .collect::<Vec<StringTableRow>>();
 
         StringTable {
             characters,
@@ -159,7 +163,8 @@ impl StringTable {
             table_builder.push_record(i.to_table_row());
         }
 
-        let table = table_builder.build()
+        let table = table_builder
+            .build()
             .with(Style::sharp())
             .with(Modify::new(Rows::new(1..)).with(Alignment::left()))
             .to_string();
@@ -198,12 +203,11 @@ struct InspectArgs {
     utf16: bool,
 }
 
-
 fn main() {
     let cli = CliArgs::parse();
     let details = match cli.inspect.utf8 {
         true => StringDetail::parse_utf8(&cli.name),
-        false => StringDetail::parse_utf16(&cli.name)
+        false => StringDetail::parse_utf16(&cli.name),
     };
 
     let char_table = StringTable::from(&details);

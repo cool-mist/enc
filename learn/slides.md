@@ -68,7 +68,7 @@ The terms character set is used interchangably with character encoding and code 
 
 # Common encoding schemes #
 
-- An encoding scheme will encode the number to one or more bytes.
+- *An encoding scheme will encode the number to one or more bytes.
 
 ## Multi byte encoding schemes ##
 
@@ -81,13 +81,12 @@ The terms character set is used interchangably with character encoding and code 
 - 99% of the internet uses this encoding scheme.
 
 
- | Byte 1   | Byte 2   | Byte 3   | Byte 4   | Available bits
+ | Byte 1   | Byte 2   | Byte 3   | Byte 4   | Available bits |
  |----------|----------|----------|----------|----------------|
  | 0xxxxxxx | -        | -        | -        | 7              |
  | 110xxxxx | 10xxxxxx | -        | -        | 11             |
  | 1110xxxx | 10xxxxxx | 10xxxxxx | -        | 16             |
  | 11110xxx | 10xxxxxx | 10xxxxxx | 10xxxxxx | 21             |
-
 
 ```
 ┌────────┬───────┬───────────┬──────┬─────┬─────┬──────────┐
@@ -115,7 +114,6 @@ The terms character set is used interchangably with character encoding and code 
 - An encoding scheme will encode the number to one or more bytes.
 
 ## Multi byte encoding schemes ##
-
 
 ### UTF - 16 ###
 
@@ -210,7 +208,6 @@ The terms character set is used interchangably with character encoding and code 
 - Some languages (eg: python) return the number of unicode code points.
 - Some languages (eg: C#) will return the number of utf-16 bytes to encode the complete string.
 - The below emoji is of length 1 in python and length 4 in c#.
-
 
 ```
 ┌────────┬───────┬───────────┬──────┬─────┬─────┬──────────┐
