@@ -178,7 +178,7 @@ impl StringTable {
 }
 
 #[derive(FromArgs)]
-/// CLI Tool to inspect utf-8 and utf-16 strings
+/// A tool to inspect utf-8 and utf-16 character encodings
 struct CliArgs {
     /// the string to inspect
     #[argh(positional)]
