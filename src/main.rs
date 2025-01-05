@@ -1,4 +1,4 @@
-use clap::{Args, Parser};
+use argh::FromArgs;
 use serde::Serialize;
 use tabled::{
     builder::Builder,
@@ -177,37 +177,27 @@ impl StringTable {
     }
 }
 
-#[derive(Parser)]
-#[command(next_line_help = true)]
+#[derive(FromArgs)]
+/// CLI Tool to inspect utf-8 and utf-16 strings
 struct CliArgs {
-    /// The string to inspect
+    /// the string to inspect
+    #[argh(positional)]
     name: String,
 
-    #[command(flatten)]
-    inspect: InspectArgs,
+    /// use utf-16 encoding instead of utf-8
+    #[argh(switch, short = '6')]
+    utf16: bool,
 
-    /// Output as json. Useful as a command line tool
-    #[arg(short = 'j', long = "json", action)]
+    #[argh(switch, short = 'j')]
+    /// output as json instead of table
     json: bool,
 }
 
-#[derive(Args)]
-#[group(required = true, multiple = false)]
-struct InspectArgs {
-    /// Inspect utf-8
-    #[arg(short = '8', action)]
-    utf8: bool,
-
-    /// Inspect utf-16
-    #[arg(short = '6', action)]
-    utf16: bool,
-}
-
 fn main() {
-    let cli = CliArgs::parse();
-    let details = match cli.inspect.utf8 {
-        true => StringDetail::parse_utf8(&cli.name),
-        false => StringDetail::parse_utf16(&cli.name),
+    let cli: CliArgs = argh::from_env();
+    let details = match cli.utf16 {
+        false => StringDetail::parse_utf8(&cli.name),
+        true => StringDetail::parse_utf16(&cli.name),
     };
 
     let char_table = StringTable::from(&details);

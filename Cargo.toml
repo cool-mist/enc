@@ -1,6 +1,6 @@
 [package]
 name = "enc-check"
-version = "0.1.1"
+version = "0.2.1"
 edition = "2021"
 authors = ["cool-mist <n.suryap@gmail.com>"]
 license = "GPL-3.0-only"
@@ -10,7 +10,7 @@ repository = "https://github.com/cool-mist/enc"
 keywords = ["encodings", "utf-8", "utf8", "unicode"]
 
 [dependencies]
-clap = { version = "4.4.6", features = ["derive"] }
+argh = "0.1.13"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 tabled = "0.14.0"

@@ -9,28 +9,22 @@
 Inspect character encodings.
 
 ```
-enc-check --help
+$ enc-check --help
 
-Usage: enc-check [OPTIONS] <-8|-6> <NAME>
+CLI Tool to inspect utf-8 and utf-16 strings
 
-Arguments:
-  <NAME>
-          The string to inspect
+Positional Arguments:
+  name              the string to inspect
 
 Options:
-  -8
-          Inspect utf-8
-  -6
-          Inspect utf-16
-  -j, --json
-          Output as json. Useful as a command line tool
-  -h, --help
-          Print help
+  -6, --utf16       use utf-16 encoding instead of utf-8
+  -j, --json        output as json instead of table
+  --help, help      display usage information
 ```
 
 
 ```
-enc-check -8 asdᚢ𐌰
+enc-check asdᚢ𐌰
 
 ┌───────┬───────┬───────────┬──────┬─────┬─────┬──────────┐
 │ U+dec │ U+hex │ character │ byte │ hex │ dec │ bin      │
